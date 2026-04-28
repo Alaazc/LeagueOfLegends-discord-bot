@@ -62,6 +62,10 @@ async def get_browser():
             [sys.executable, "-m", "playwright", "install", "chromium"],
             check=True
         )
+        subprocess.run(
+            [sys.executable, "-m", "playwright", "install-deps", "chromium"],
+            check=True
+        )
         playwright_instance = await async_playwright().start()
         browser_instance = await playwright_instance.chromium.launch(
             headless=True,

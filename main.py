@@ -35,10 +35,10 @@ build_cache = {}
 
 TIER_LIST_URLS = {
     "top":  "https://u.gg/lol/top-lane-tier-list",
-    "jungle":   "https://u.gg/lol/jungle-tier-list",
+    "jg":   "https://u.gg/lol/jungle-tier-list",
     "mid":  "https://u.gg/lol/mid-lane-tier-list",
     "bot":  "https://u.gg/lol/adc-tier-list",
-    "support": "https://u.gg/lol/support-tier-list",
+    "supp": "https://u.gg/lol/support-tier-list",
 }
 
 ROLE_URL_MAP = {

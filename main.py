@@ -57,6 +57,11 @@ browser_instance = None
 async def get_browser():
     global playwright_instance, browser_instance
     if browser_instance is None or not browser_instance.is_connected():
+        import subprocess, sys
+        subprocess.run(
+            [sys.executable, "-m", "playwright", "install", "chromium"],
+            check=True
+        )
         playwright_instance = await async_playwright().start()
         browser_instance = await playwright_instance.chromium.launch(
             headless=True,

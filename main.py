@@ -577,7 +577,7 @@ async def help(ctx):
     embed = discord.Embed(title="Bot Commands & Guide",
                           description="Bot Commands",
                             color=discord.Color.blue())
-    embed.add_field(name="Tier List", value=f"`{ctx.prefix}tierlist-[role]`\n*Example:* `{ctx.prefix}tierlist jg`", inline=False)
+    embed.add_field(name="Tier List", value=f"`{ctx.prefix}tierlist [role]`\n*Example:* `{ctx.prefix}tierlist jg`", inline=False)
     embed.add_field(name="", value=" ", inline=False)
     embed.add_field(name="Build", value=f"`{ctx.prefix}build-[champ]`\n*Example:* `{ctx.prefix}build garen-top`", inline=False)
     embed.set_footer(text=f"Requested by {ctx.author.display_name}", icon_url=ctx.author.display_avatar.url)

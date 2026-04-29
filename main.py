@@ -55,23 +55,26 @@ playwright_instance = None
 browser_instance = None
 
 async def get_browser():
-    global playwright_instance, browser_instance
+    global playwright_instance, browser_instance, idle_timer
+
+    # cancel existing idle timer since browser is being used
+    if idle_timer and not idle_timer.done():
+        idle_timer.cancel()
+
     if browser_instance is None or not browser_instance.is_connected():
         import subprocess, sys
-        subprocess.run(
-            [sys.executable, "-m", "playwright", "install", "chromium"],
-            check=True
-        )
-        subprocess.run(
-            [sys.executable, "-m", "playwright", "install-deps", "chromium"],
-            check=True
-        )
+        subprocess.run([sys.executable, "-m", "playwright", "install", "chromium"], check=True)
+        subprocess.run([sys.executable, "-m", "playwright", "install-deps", "chromium"], check=True)
         playwright_instance = await async_playwright().start()
         browser_instance = await playwright_instance.chromium.launch(
             headless=True,
             args=['--disable-blink-features=AutomationControlled']
         )
         print("Browser launched")
+
+    # start a fresh idle timer
+    idle_timer = asyncio.ensure_future(close_browser_after_idle(timeout=300))
+
     return browser_instance
 
 

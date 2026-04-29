@@ -197,14 +197,23 @@ async def get_soup(url):
             await route.continue_()
 
     await page.route("**/*", block_resources)
-    await page.goto(url, timeout=60000, wait_until='domcontentloaded')
-    await page.evaluate("window.scrollTo(0, document.body.scrollHeight)")
-    await asyncio.sleep(1)
+    await page.goto(url, timeout=60000, wait_until='networkidle')
+    await asyncio.sleep(3)
 
     content = await page.content()
     await context.close()
 
-    return BeautifulSoup(content, 'html.parser')
+    soup = BeautifulSoup(content, 'html.parser')
+
+    # debug — tells you exactly which element is missing
+    label_divs = soup.find("div", class_="flex flex-wrap gap-[12px] max-[700px]:flex-col")
+    if label_divs is None:
+        print(f"[DEBUG] Page title: {await page.title()}")
+        print(f"[DEBUG] Page URL: {page.url}")
+        print(f"[DEBUG] HTML snippet: {soup.prettify()[:2000]}")
+        raise Exception("Page did not load correctly — label_divs is None")
+
+    return soup
 
 async def get_item_sprite(soup, game_state_container, item_container):
     sprite_cache = {}

@@ -54,58 +54,26 @@ CACHE_DURATION = 1800
 playwright_instance = None
 browser_instance = None
 
-
-idle_timer = None
-
-async def close_browser_after_idle(timeout=300):
-    global browser_instance, playwright_instance
-    await asyncio.sleep(timeout)
-    try:
-        if browser_instance:
-            await browser_instance.close()
-        if playwright_instance:
-            await playwright_instance.stop()
-    except Exception as e:
-        print(f"Error closing browser: {e}")
-    finally:
-        browser_instance = None
-        playwright_instance = None
-        print("Browser closed due to inactivity")
-
 async def get_browser():
-    global playwright_instance, browser_instance, idle_timer
-
-    # cancel existing idle timer
-    if idle_timer and not idle_timer.done():
-        idle_timer.cancel()
-        try:
-            await idle_timer
-        except asyncio.CancelledError:
-            pass
-
+    global playwright_instance, browser_instance
     if browser_instance is None or not browser_instance.is_connected():
-        # close old playwright instance cleanly if it exists
-        try:
-            if playwright_instance:
-                await playwright_instance.stop()
-        except:
-            pass
-        playwright_instance = None
-        browser_instance = None
-
         import subprocess, sys
-        subprocess.run([sys.executable, "-m", "playwright", "install", "chromium"], check=True)
-        subprocess.run([sys.executable, "-m", "playwright", "install-deps", "chromium"], check=True)
-
+        subprocess.run(
+            [sys.executable, "-m", "playwright", "install", "chromium"],
+            check=True
+        )
+        subprocess.run(
+            [sys.executable, "-m", "playwright", "install-deps", "chromium"],
+            check=True
+        )
         playwright_instance = await async_playwright().start()
         browser_instance = await playwright_instance.chromium.launch(
             headless=True,
             args=['--disable-blink-features=AutomationControlled']
         )
         print("Browser launched")
-
-    idle_timer = asyncio.ensure_future(close_browser_after_idle(timeout=300))
     return browser_instance
+
 
 
 async def tierList(role):  # ✅ takes role instead of url
@@ -198,17 +166,8 @@ async def get_soup(url):
 
     await page.route("**/*", block_resources)
     await page.goto(url, timeout=60000, wait_until='domcontentloaded')
-    
-    # wait for the specific element that get_build() needs
-    try:
-        await page.wait_for_selector(
-            "div.flex.flex-wrap", 
-            timeout=15000
-        )
-    except:
-        print(f"[DEBUG] Selector timed out, proceeding anyway")
-    
-    await asyncio.sleep(2)
+    await page.evaluate("window.scrollTo(0, document.body.scrollHeight)")
+    await asyncio.sleep(1)
 
     content = await page.content()
     await context.close()

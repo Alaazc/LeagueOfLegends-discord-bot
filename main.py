@@ -54,6 +54,22 @@ CACHE_DURATION = 1800
 playwright_instance = None
 browser_instance = None
 
+
+
+idle_timer = None
+
+async def close_browser_after_idle(timeout=300):
+    await asyncio.sleep(timeout)
+    global browser_instance, playwright_instance
+    if browser_instance:
+        await browser_instance.close()
+        browser_instance = None
+    if playwright_instance:
+        await playwright_instance.stop()
+        playwright_instance = None
+    print("Browser closed due to inactivity")
+
+
 async def get_browser():
     global playwright_instance, browser_instance, idle_timer
 

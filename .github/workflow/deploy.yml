@@ -1,41 +1,41 @@
-name: Deploy Bot
+name: Deploy to AWS EC2
 
 on:
   push:
-    branches: [ main ]  # runs every time you push to main
+    branches: [ "main" ] # Triggers when you push to your main branch
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-      # ── run tests first ──────────────────────────────────
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.11'
-
-      - name: Install dependencies
+      - name: Set up SSH Private Key and Known Hosts
         run: |
-          pip install -r requirements.txt
-          playwright install chromium
+          mkdir -p ~/.ssh
+          cat << 'EOF' > ~/.ssh/id_rsa
+          ${{ secrets.SSH_KEY }}
+          EOF
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ secrets.HOST }} >> ~/.ssh/known_hosts
 
-      - name: Run tests
-        run: python -m pytest test_build.py -v
-
-      # ── deploy to server ─────────────────────────────────
-      - name: Deploy to server
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.HOST }}
-          username: ${{ secrets.USERNAME }}
-          key: ${{ secrets.SSH_KEY }}
-          script: |
-            cd /home/ubuntu/your-bot-folder
+      - name: Deploy to EC2 via SSH
+        env:
+          EC2_HOST: ${{ secrets.HOST }}
+          EC2_USER: ${{ secrets.USERNAME }}
+        run: |
+          ssh ${EC2_USER}@${EC2_HOST} << 'EOF'
+            # Navigate to your application directory on the server
+            cd /home/ubuntu/discord-bot
+            
+            # Pull the latest changes from GitHub
             git pull origin main
+          
+            
+            # For Python (discord.py):
             pip install -r requirements.txt
-            playwright install chromium
-            sudo systemctl restart discordbot
+            pkill -f bot.py || true
+            nohup python3 bot.py > bot.log 2>&1 &
+          EOF

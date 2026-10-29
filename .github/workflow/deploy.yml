@@ -1,0 +1,41 @@
+name: Deploy Bot
+
+on:
+  push:
+    branches: [ main ]  # runs every time you push to main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # ── run tests first ──────────────────────────────────
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          playwright install chromium
+
+      - name: Run tests
+        run: python -m pytest test_build.py -v
+
+      # ── deploy to server ─────────────────────────────────
+      - name: Deploy to server
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            cd /home/ubuntu/your-bot-folder
+            git pull origin main
+            pip install -r requirements.txt
+            playwright install chromium
+            sudo systemctl restart discordbot

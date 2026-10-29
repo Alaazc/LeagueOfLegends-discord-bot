@@ -28,14 +28,13 @@ jobs:
         run: |
           ssh ${EC2_USER}@${EC2_HOST} << 'EOF'
             # Navigate to your application directory on the server
-            cd /home/ubuntu/discord-bot
+            cd /home/ubuntu/LeagueOfLegends-discord-bot
             
             # Pull the latest changes from GitHub
             git pull origin main
           
-            
             # For Python (discord.py):
-            pip install -r requirements.txt
-            pkill -f bot.py || true
-            nohup python3 bot.py > bot.log 2>&1 &
+            pip install -r requirements
+            pkill -f Bot.py || true
+            nohup python3 Bot.py > discord.log 2>&1 &
           EOF

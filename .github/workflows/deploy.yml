@@ -37,7 +37,13 @@ jobs:
             # Stop any running bot instance safely
             pkill -f Bot.py || true
 
-            # Install or update dependencies
+            # Install or update dependencies (fixed with .txt)
             python3 -m pip install --user -r requirements.txt
-          
+
+            # Start the bot in the background using nohup
+            nohup python3 Bot.py > discord.log 2>&1 &
+            
+            # Brief pause to verify background process launched successfully
+            sleep 2
+            ps aux | grep Bot.py
           EOF

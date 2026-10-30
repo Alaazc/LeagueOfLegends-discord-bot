@@ -164,7 +164,7 @@ async def help(ctx):
                             color=discord.Color.blue())
     embed.add_field(name="Tier List", value=f"`{ctx.prefix}tierlist-<role>`\n*Example:* `{ctx.prefix}tierlist jg`", inline=False)
     embed.add_field(name="", value=" ", inline=False)
-    embed.add_field(name="Build", value=f"`{ctx.prefix} !build <champion>-<role>`\n*Example:* `{ctx.prefix}build garen-top`", inline=False)
+    embed.add_field(name="Build", value=f"`{ctx.prefix}build <champion>-<role>`\n*Example:* `{ctx.prefix}build garen-top`", inline=False)
     embed.set_footer(text=f"Requested by {ctx.author.display_name}", icon_url=ctx.author.display_avatar.url)
     embed.add_field(name="", value="Valid roles = top, jg, mid, bot, supp", inline=False)
     embed.add_field(name="", value="If a character has a space included in their name it must be included. Example: Dr. Mundo, Jarven IV ", inline=False)

@@ -20,6 +20,8 @@ jobs:
       - run: pip install -r requirements.txt flake8 pytest
       - run: flake8 . --max-line-length=120
       - run: pytest
+      - run: pip install black
+      - run: black --check --line-length 120 .
 
   deploy:
     needs: test

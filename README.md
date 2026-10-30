@@ -127,13 +127,6 @@ flowchart TB
 | Infrastructure | AWS EC2 (Amazon Linux), systemd |
 | Automation | GitHub Actions, Black, flake8, pytest |
 
----
-
-## Run it yourself
-
-
----
-
 ## Roadmap
 
 - [ ] Unit tests for scraping helpers using saved HTML fixtures

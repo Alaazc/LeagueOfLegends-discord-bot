@@ -1,6 +1,6 @@
 from playwright.async_api import async_playwright
 from bs4 import BeautifulSoup
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image
 import asyncio
 import httpx
 import io
@@ -10,6 +10,8 @@ import time
 from tabulate import tabulate
 import json
 from PIL import ImageDraw, ImageFont
+import subprocess
+import sys
 
 playwright_instance = None
 browser_instance = None
@@ -38,7 +40,6 @@ CACHE_DURATION = 1800
 async def get_browser():
     global playwright_instance, browser_instance
     if browser_instance is None or not browser_instance.is_connected():
-        import subprocess, sys
         subprocess.run(
             [sys.executable, "-m", "playwright", "install", "chromium"],
             check=True
@@ -53,10 +54,30 @@ async def get_browser():
                   "--disable-accelerated-2d-canvas",
                   "--no-first-run",
                   "--no-zygote",
-                  "--disable-gpu"]
-            )
+            ]
+        )
         print("Browser launched")
-        return browser_instance
+    return browser_instance
+
+async def close_browser():
+    """Close Playwright's browser and driver. Safe to call multiple times."""
+    global browser_instance, playwright_instance
+
+    if browser_instance is not None:
+        try:
+            await browser_instance.close()
+        except Exception as e:
+            print(f"Error closing browser: {e}")
+        finally:
+            browser_instance = None
+
+    if playwright_instance is not None:
+        try:
+            await playwright_instance.stop()
+        except Exception as e:
+            print(f"Error stopping playwright: {e}")
+        finally:
+            playwright_instance = None
 
 async def get_soup_tierlist(url):
     browser = await get_browser()
@@ -392,7 +413,7 @@ def stitch_all_groups(image_groups, item_size=64, padding=8, label_height=20, ba
 
     try:
         font = ImageFont.truetype("arial.ttf", 14)
-    except:
+    except Exception:
         font = ImageFont.load_default()
 
     y = padding

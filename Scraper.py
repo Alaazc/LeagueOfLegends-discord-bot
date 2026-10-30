@@ -54,6 +54,7 @@ async def get_browser():
                   "--no-first-run",
                   "--no-zygote",
                   "--disable-gpu"]
+            )
         print("Browser launched")
         return browser_instance
 

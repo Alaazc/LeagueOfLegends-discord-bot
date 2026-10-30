@@ -11,7 +11,6 @@ from tabulate import tabulate
 import json
 from PIL import ImageDraw, ImageFont
 
-
 playwright_instance = None
 browser_instance = None
 
@@ -482,3 +481,4 @@ def is_champion(champ: str) -> bool:
         return True
     else:
         return False
+

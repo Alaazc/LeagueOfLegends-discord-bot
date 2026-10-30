@@ -16,7 +16,6 @@ from Scraper import (
     close_browser,
 )
 
-
 class MyBot(commands.Bot):
     async def close(self):
         await close_browser()

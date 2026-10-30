@@ -16,10 +16,12 @@ from Scraper import (
     close_browser,
 )
 
+
 class MyBot(commands.Bot):
     async def close(self):
         await close_browser()
         await super().close()
+
 
 load_dotenv()
 token = os.getenv("DISCORD_TOKEN")

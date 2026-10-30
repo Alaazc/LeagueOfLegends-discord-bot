@@ -481,4 +481,3 @@ def is_champion(champ: str) -> bool:
         return True
     else:
         return False
-

@@ -38,6 +38,6 @@ jobs:
             pkill -f Bot.py || true
 
             # Install or update dependencies
-            python3 -m pip install --user -r requirements
+            python3 -m pip install --user -r requirements.txt
           
           EOF

@@ -22,12 +22,6 @@ class MyBot(commands.Bot):
         await close_browser()
         await super().close()
 
-
-# some problem with scrapper.
-# doouble check github actions
-# create the readme with proof
-# update resume
-
 load_dotenv()
 token = os.getenv("DISCORD_TOKEN")
 

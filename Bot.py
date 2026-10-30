@@ -1,4 +1,3 @@
-#commentdo something please
 import discord
 from discord.ext import commands
 import logging
@@ -7,7 +6,18 @@ import os
 import asyncio
 import pandas as pd
 from Scraper import (get_build, stitch_all_groups, get_browser,
-                       is_champion, other_builds, tierList, TIER_LIST_URLS)
+                       is_champion, other_builds, tierList, TIER_LIST_URLS, close_browser)
+
+class MyBot(commands.Bot):
+    async def close(self):
+        await close_browser()
+        await super().close()
+
+
+#some problem with scrapper.
+#doouble check github actions
+#create the readme with proof
+#update resume
 
 load_dotenv()
 token = os.getenv("DISCORD_TOKEN")
@@ -24,7 +34,7 @@ bot = commands.Bot(command_prefix='!', intents=intents)
 bot.remove_command('help')
 
 async def send_tierlist(ctx, role):
-    await ctx.send(f" Fetching tier list...")
+    await ctx.send(" Fetching tier list...")
     try:
         result = await tierList(role)
         if len(result) > 1900:
@@ -112,7 +122,7 @@ class BuildView(discord.ui.View):
             if self.original_message:
                 try:
                     await self.original_message.delete()
-                except:
+                except Exception:
                     pass
 
             loading = await interaction.followup.send(
@@ -133,7 +143,7 @@ class BuildView(discord.ui.View):
                 print(f" build failed: {e}")
                 try:
                     await loading.delete()
-                except:
+                except Exception:
                     pass
                 await interaction.followup.send(f"Failed to fetch build: `{e}`")
 
@@ -145,14 +155,6 @@ class BuildView(discord.ui.View):
 async def on_ready():
     print(f" Logged in as {bot.user}")
     await get_browser()
-
-@bot.event
-async def on_disconnect():
-    global browser_instance, playwright_instance
-    if browser_instance:
-        await browser_instance.close()
-    if playwright_instance:
-        await playwright_instance.stop()
 
 @bot.event
 async def on_message(message):

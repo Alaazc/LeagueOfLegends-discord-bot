@@ -55,7 +55,7 @@ async def get_browser():
                   "--no-zygote",
                   "--disable-gpu"]
         print("Browser launched")
-    return browser_instance
+        return browser_instance
 
 async def get_soup_tierlist(url):
     browser = await get_browser()

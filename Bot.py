@@ -13,7 +13,7 @@ class MyBot(commands.Bot):
         await close_browser()
         await super().close()
 
-#p
+#pl
 load_dotenv()
 token = os.getenv("DISCORD_TOKEN")
 

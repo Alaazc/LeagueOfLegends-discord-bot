@@ -17,12 +17,10 @@ jobs:
           python-version: "3.12"
           cache: pip
 
-      - run: pip install -r requirements.txt flake8 pytest
+      - run: pip install -r requirements.txt flake8 pytest black
+      - run: black --check --line-length 120 .
       - run: flake8 . --max-line-length=120
-      - run: pytest
-      - run: pip install black
-      - run: black --line-length 120 Bot.py Scraper.py
-      - run: pip install playwright install chromium
+      - run: python -m pytest
 
   deploy:
     needs: test
@@ -37,10 +35,11 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           script: |
             set -e
-            cd ~/mybot
+            cd ~/LeagueOfLegends-discord-bot
             git pull origin main
             source venv/bin/activate
             pip install -r requirements.txt
+            playwright install chromium
             sudo systemctl restart discordbot
             sleep 3
             systemctl is-active discordbot

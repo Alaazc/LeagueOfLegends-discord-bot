@@ -15,7 +15,6 @@ Live data scraped from u.gg, delivered as rich Discord embeds, and shipped to AW
 <img width="657" height="882" alt="image" src="https://github.com/user-attachments/assets/4fcb471a-6cf7-4795-9ef2-fee734412c1e" />
 <img width="593" height="263" alt="image" src="https://github.com/user-attachments/assets/6225e1a6-c79f-44dd-a341-0030336bad24" />
 
-<img width="1090" height="447" alt="image" src="https://github.com/user-attachments/assets/1405e50a-05c7-46da-a9dc-303b9ae9165a" />
 
 
 </div>

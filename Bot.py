@@ -4,7 +4,10 @@ from discord.ext import commands
 import logging
 from dotenv import load_dotenv
 import os
-from Scraper import *
+import asyncio
+import pandas as pd
+from Scraper import (get_build, stitch_all_groups, get_browser,
+                       is_champion, other_builds, tierList, TIER_LIST_URLS)
 
 load_dotenv()
 token = os.getenv("DISCORD_TOKEN")

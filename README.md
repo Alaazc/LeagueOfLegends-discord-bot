@@ -1,6 +1,6 @@
 <div align="center">
 
-# ⚔️ League of Legends Discord Bot
+# League of Legends Discord Bot
 
 **Type a command. Get a full champion build in seconds.**
 Live data scraped from u.gg, delivered as rich Discord embeds, and shipped to AWS by an automated CI/CD pipeline.

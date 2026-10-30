@@ -38,7 +38,7 @@ jobs:
             cd ~/LeagueOfLegends-discord-bot
             git fetch origin main
             git reset --hard origin/main
-            source .env/bin/activate
+            source venv/bin/activate
             pip install -r requirements.txt
             playwright install chromium
             sudo systemctl restart discordbot

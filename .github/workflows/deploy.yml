@@ -1,0 +1,43 @@
+name: Deploy Discord Bot to EC2
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up SSH Private Key and Known Hosts
+        run: |
+          mkdir -p ~/.ssh
+          cat << 'EOF' > ~/.ssh/id_rsa
+          ${{ secrets.SSH_KEY }}
+          EOF
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ secrets.HOST }} >> ~/.ssh/known_hosts
+
+      - name: Deploy to EC2 via SSH
+        run: |
+          ssh ${{ secrets.USERNAME }}@${{ secrets.HOST }} << 'EOF'
+            # Navigate to project directory or clone if it doesn't exist
+            if [ -d "~/LeagueOfLegends-discord-bot" ]; then
+              cd ~/LeagueOfLegends-discord-bot
+              git pull origin main
+            else
+              git clone https://github.com/Alaazc/LeagueOfLegends-discord-bot.git
+              cd LeagueOfLegends-discord-bot
+            fi
+
+            # Stop any running bot instance safely
+            pkill -f Bot.py || true
+
+            # Install or update dependencies
+            python3 -m pip install --user -r requirements
+          
+          EOF

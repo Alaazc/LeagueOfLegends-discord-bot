@@ -10,8 +10,7 @@ import time
 from tabulate import tabulate
 import json
 from PIL import ImageDraw, ImageFont
-import subprocess
-import sys
+
 
 playwright_instance = None
 browser_instance = None
@@ -19,45 +18,44 @@ browser_instance = None
 build_cache = {}
 
 TIER_LIST_URLS = {
-    "top":  "https://u.gg/lol/top-lane-tier-list",
-    "jg":   "https://u.gg/lol/jungle-tier-list",
-    "mid":  "https://u.gg/lol/mid-lane-tier-list",
-    "bot":  "https://u.gg/lol/adc-tier-list",
+    "top": "https://u.gg/lol/top-lane-tier-list",
+    "jg": "https://u.gg/lol/jungle-tier-list",
+    "mid": "https://u.gg/lol/mid-lane-tier-list",
+    "bot": "https://u.gg/lol/adc-tier-list",
     "supp": "https://u.gg/lol/support-tier-list",
 }
 
 ROLE_URL_MAP = {
-    "top":  "top",
-    "jg":   "jungle",
-    "mid":  "mid",
-    "bot":  "adc",
+    "top": "top",
+    "jg": "jungle",
+    "mid": "mid",
+    "bot": "adc",
     "supp": "support",
 }
 
 cache = {role: {"data": None, "timestamp": 0} for role in TIER_LIST_URLS}
 CACHE_DURATION = 1800
 
+
 async def get_browser():
     global playwright_instance, browser_instance
     if browser_instance is None or not browser_instance.is_connected():
-        subprocess.run(
-            [sys.executable, "-m", "playwright", "install", "chromium"],
-            check=True
-        )
         playwright_instance = await async_playwright().start()
         browser_instance = await playwright_instance.chromium.launch(
             headless=True,
-            args=['--disable-blink-features=AutomationControlled',
-                  "--no-sandbox",
-                  "--disable-setuid-sandbox",
-                  "--disable-dev-shm-usage",
-                  "--disable-accelerated-2d-canvas",
-                  "--no-first-run",
-                  "--no-zygote",
-            ]
+            args=[
+                "--disable-blink-features=AutomationControlled",
+                "--no-sandbox",
+                "--disable-setuid-sandbox",
+                "--disable-dev-shm-usage",
+                "--disable-accelerated-2d-canvas",
+                "--no-first-run",
+                "--no-zygote",
+            ],
         )
         print("Browser launched")
     return browser_instance
+
 
 async def close_browser():
     """Close Playwright's browser and driver. Safe to call multiple times."""
@@ -79,11 +77,12 @@ async def close_browser():
         finally:
             playwright_instance = None
 
+
 async def get_soup_tierlist(url):
     browser = await get_browser()
     context = await browser.new_context(
-        user_agent='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-        viewport={'width': 1920, 'height': 1080},
+        user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        viewport={"width": 1920, "height": 1080},
     )
     page = await context.new_page()
 
@@ -94,8 +93,8 @@ async def get_soup_tierlist(url):
             await route.continue_()
 
     await page.route("**/*", block_resources)
-    await page.goto(url, timeout=60000, wait_until='domcontentloaded')
-    await page.wait_for_selector('.rt-tr-group', timeout=30000)
+    await page.goto(url, timeout=60000, wait_until="domcontentloaded")
+    await page.wait_for_selector(".rt-tr-group", timeout=30000)
     await asyncio.sleep(2)
 
     await page.mouse.move(960, 400)
@@ -115,15 +114,15 @@ async def get_soup_tierlist(url):
         """)
 
         for text in rows:
-            text = ' '.join(text.split())
+            text = " ".join(text.split())
             match = re.match(r"(\d+)\s*([\w']+(?:\s[\w']+)*)\s+([A-Z][+-]?)\s+([\d.]+%)", text)
             if match:
                 rank = match.group(1).strip()
                 all_rows[rank] = {
-                    "No":       rank,
+                    "No": rank,
                     "Champion": match.group(2).strip(),
-                    "Tier":     match.group(3).strip(),
-                    "Win Rate": match.group(4).strip()
+                    "Tier": match.group(3).strip(),
+                    "Win Rate": match.group(4).strip(),
                 }
 
         current_max = max(int(k) for k in all_rows.keys()) if all_rows else 0
@@ -135,6 +134,7 @@ async def get_soup_tierlist(url):
 
     await context.close()
     return all_rows
+
 
 async def tierList(role):
     url = TIER_LIST_URLS[role]
@@ -158,8 +158,8 @@ async def tierList(role):
 async def get_soup(url):
     browser = await get_browser()
     context = await browser.new_context(
-        user_agent='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-        viewport={'width': 1920, 'height': 1080},
+        user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        viewport={"width": 1920, "height": 1080},
     )
     page = await context.new_page()
 
@@ -170,14 +170,15 @@ async def get_soup(url):
             await route.continue_()
 
     await page.route("**/*", block_resources)
-    await page.goto(url, timeout=60000, wait_until='domcontentloaded')
+    await page.goto(url, timeout=60000, wait_until="domcontentloaded")
     await page.evaluate("window.scrollTo(0, document.body.scrollHeight)")
     await asyncio.sleep(1)
 
     content = await page.content()
     await context.close()
 
-    return BeautifulSoup(content, 'html.parser')
+    return BeautifulSoup(content, "html.parser")
+
 
 async def get_item_sprite(soup, game_state_container, item_container):
     sprite_cache = {}
@@ -197,8 +198,8 @@ async def get_item_sprite(soup, game_state_container, item_container):
 
         style = sprite_div.get("style", "")
         url_match = re.search(r'url\("(.+?)"\)', style)
-        pos_match = re.search(r'background-position:\s*(-?\d+)px\s*(-?\d+)px', style)
-        scale_match = re.search(r'scale\(([\d.]+)\)', style)
+        pos_match = re.search(r"background-position:\s*(-?\d+)px\s*(-?\d+)px", style)
+        scale_match = re.search(r"scale\(([\d.]+)\)", style)
 
         if not all([url_match, pos_match, scale_match]):
             continue
@@ -228,14 +229,12 @@ async def get_item_sprite(soup, game_state_container, item_container):
 
     return images
 
-async def get_build(champ, role, url = None):
+
+async def get_build(champ, role, url=None):
     if url is None:
-        if url is None:
-            url_role = ROLE_URL_MAP.get(role, role)
-            url = f"https://u.gg/lol/champions/{champ}/build/{url_role}"
-            soup = await get_soup(url)
-        else:
-            soup = await get_soup(url)
+        url_role = ROLE_URL_MAP.get(role, role)
+        url = f"https://u.gg/lol/champions/{champ}/build/{url_role}"
+    soup = await get_soup(url)
 
     data = []
 
@@ -259,12 +258,13 @@ async def get_build(champ, role, url = None):
 
     rune_spell = build_divs.find("div", class_=lambda c: c and "rune-spell" in c)
 
-    rune_spell_inner = rune_spell.find("div", class_=lambda c: c and "content-section content-section_unset grid-1 max-sm:!flex max-sm:!flex-col" in c)
+    rune_spell_inner = rune_spell.find(
+        "div", class_=lambda c: c and "content-section content-section_unset grid-1 max-sm:!flex max-sm:!flex-col" in c
+    )
 
-    summoner_divs =rune_spell_inner.find("div", class_=lambda c: c and "content-section_content summoner-spells" in c)
+    summoner_divs = rune_spell_inner.find("div", class_=lambda c: c and "content-section_content summoner-spells" in c)
 
     summoner_container = summoner_divs.find("div", class_=lambda c: c and "flex" in c)
-
 
     if summoner_container:
         summoners_imgs = summoner_container.find_all("img")  # just grab all imgs directly
@@ -279,7 +279,6 @@ async def get_build(champ, role, url = None):
     desktop = build_divs.find("div", class_="rune-trees-container media-query media-query_MOBILE_LARGE__DESKTOP_LARGE")
 
     parent = desktop.find("div", class_=lambda c: c and "rune-tree primary-tree" in c)
-
 
     tree_div = parent.find("div", class_="rune-image-container")
     if tree_div:
@@ -395,6 +394,7 @@ async def get_build(champ, role, url = None):
     }
     return df, image_groups
 
+
 def stitch_all_groups(image_groups, item_size=64, padding=8, label_height=20, background=(30, 30, 30, 255)):
 
     # calculate total canvas size
@@ -403,10 +403,7 @@ def stitch_all_groups(image_groups, item_size=64, padding=8, label_height=20, ba
         if imgs:
             total_height += label_height + item_size + padding
 
-    max_width = max(
-        (item_size + padding) * len(imgs) + padding
-        for imgs in image_groups.values() if imgs
-    )
+    max_width = max((item_size + padding) * len(imgs) + padding for imgs in image_groups.values() if imgs)
 
     combined = Image.new("RGBA", (max_width, total_height), background)
     draw = ImageDraw.Draw(combined)
@@ -437,6 +434,7 @@ def stitch_all_groups(image_groups, item_size=64, padding=8, label_height=20, ba
     combined.save(out, format="PNG")
     out.seek(0)
     return out
+
 
 async def other_builds(champ, role):
     url_role = ROLE_URL_MAP.get(role, role)
@@ -473,6 +471,7 @@ async def other_builds(champ, role):
             builds.append((full_url, build_type))
 
     return builds
+
 
 def is_champion(champ: str) -> bool:
     champ = champ.strip().title()

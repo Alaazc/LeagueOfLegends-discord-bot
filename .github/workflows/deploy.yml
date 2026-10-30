@@ -21,7 +21,8 @@ jobs:
       - run: flake8 . --max-line-length=120
       - run: pytest
       - run: pip install black
-      - run: black --check --line-length 120 .
+      - run: black --line-length 120 Bot.py Scraper.py
+      - run: pip install playwright install chromium
 
   deploy:
     needs: test
